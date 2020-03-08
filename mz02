@@ -1,0 +1,246 @@
+#include "stdafx.h"
+
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <cstring>
+#include <cstdio>
+#include <cmath>
+
+namespace numbers
+{
+	class complex {
+		double re_{}, im_{};
+	public:
+		complex() {};
+		complex(double, double);
+		explicit complex(std::string);
+
+		double re() const;
+		double im() const;
+
+		double abs2() const;
+		double abs() const;
+
+		std::string to_string() const;
+
+		const complex& operator+=(const complex&);
+		const complex& operator-=(const complex&);
+		const complex& operator*=(const complex&);
+		const complex& operator/=(const complex&);
+
+		complex operator~() const;
+		complex operator-() const;
+	};
+
+	complex::complex(double re, double im = 0) : re_(re), im_(im) {};
+	complex::complex(std::string str)
+	{
+		std::istringstream sin(str);
+		char rubbish;
+		sin >> rubbish >> re_ >> rubbish >> im_;
+	}
+
+	double complex::re() const { return re_; }
+	double complex::im() const { return im_; }
+
+	double complex::abs2() const { return re_ * re_ + im_ * im_; }
+	double complex::abs() const { return sqrt(this->abs2()); }
+
+	std::string complex::to_string() const
+	{
+		std::ostringstream sout;
+		sout << std::setprecision(10) << '(' << re_ << ',' << im_ << ')';
+		return sout.str();
+	}
+
+	const complex& complex::operator+=(const complex &z)
+	{
+		this->re_ += z.re_;
+		this->im_ += z.im_;
+		return *this;
+	}
+	const complex& complex::operator-=(const complex &z)
+	{
+		this->re_ -= z.re_;
+		this->im_ -= z.im_;
+		return *this;
+	}
+	const complex& complex::operator*=(const complex &z)
+	{
+		double pre_ = this->re_ * z.re_ - this->im_ * z.im_;
+		double pim_ = this->re_ * z.im_ + this->im_ * z.re_;
+		this->re_ = pre_;
+		this->im_ = pim_;
+		return *this;
+	}
+	const complex& complex::operator/=(const complex &z)
+	{
+		double pre_ = (this->re_ * z.re_ + this->im_ * z.im_)
+			/ (z.re_ * z.re_ + z.im_ * z.im_);
+		double pim_ = (this->im_ * z.re_ - this->re_ * z.im_)
+			/ (z.re_ * z.re_ + z.im_ * z.im_);
+		this->re_ = pre_;
+		this->im_ = pim_;
+		return *this;
+	}
+	complex operator+(const complex &z1, const complex &z2)
+	{
+		return complex(z1) += z2;
+	}
+	complex operator-(const complex &z1, const complex &z2)
+	{
+		return complex(z1) -= z2;
+	}
+	complex operator*(const complex &z1, const complex &z2)
+	{
+		return complex(z1) *= z2;
+	}
+	complex operator/(const complex &z1, const complex &z2)
+	{
+		return complex(z1) /= z2;
+	}
+	complex complex::operator~() const
+	{
+		return complex(this->re_, -this->im_);
+	}
+	complex complex::operator-() const
+	{
+		return complex(-this->re_, -this->im_);
+	}
+
+	class complex_stack {
+		complex *top;
+		size_t st_size{};
+		size_t val_count{};
+	public:
+		complex_stack(size_t);
+		complex_stack(const complex_stack&);
+		~complex_stack();
+
+		size_t size() const;
+		void swap(complex_stack&) noexcept;
+		complex_stack& operator=(const complex_stack&);
+		const complex operator[](const size_t) const;
+		complex_stack operator<<(const complex) const;
+		complex operator+() const;
+		complex_stack operator~() const;
+	};
+
+	complex_stack::complex_stack(size_t count = 0) : val_count(count) {
+		st_size = (count == 0 ? 1 : count);
+		top = new complex[st_size];
+	}
+	complex_stack::complex_stack(const complex_stack &st) : st_size(st.st_size), val_count(st.val_count)
+	{
+		top = new complex[(int)st_size];
+		for (size_t i = 0; i < val_count; ++i)
+		{
+			top[i] = st.top[i];
+		}
+	}
+	complex_stack::~complex_stack()
+	{
+		delete[] top;
+	}
+
+	size_t complex_stack::size() const { return val_count; }
+	void complex_stack::swap(complex_stack &st) noexcept
+	{
+		std::swap(st_size, st.st_size);
+		std::swap(val_count, st.val_count);
+		std::swap(top, st.top);
+	}
+	complex_stack& complex_stack::operator=(const complex_stack &st)
+	{
+		complex_stack tmp(st);
+		this->swap(tmp);
+		return *this;
+	}
+	const complex complex_stack::operator[](const size_t i) const
+	{
+		return top[i];
+	}
+	complex_stack complex_stack::operator<<(const complex val) const
+	{
+		complex_stack new_st(*this);
+		if (new_st.val_count + 1 > new_st.st_size) {
+			new_st.st_size *= 2;
+			delete[] new_st.top;
+			new_st.top = new complex[new_st.st_size];
+			for (size_t i = 0; i < new_st.val_count; ++i)
+			{
+				new_st.top[i] = this->top[i];
+			}
+		}
+		++new_st.val_count;
+		new_st.top[new_st.val_count - 1] = val;
+		return new_st;
+	}
+	complex complex_stack::operator+() const
+	{
+		return (*this)[this->val_count - 1];
+	}
+	complex_stack complex_stack::operator~() const
+	{
+		complex_stack new_st(*this);
+		new_st.val_count--;
+		delete[] new_st.top;
+		new_st.top = new complex[st_size];
+		for (size_t i = 0; i < new_st.val_count; ++i) {
+			new_st.top[i] = this->top[i];
+		}
+		return new_st;
+	}
+
+	complex eval(char **args, const complex &z)
+	{
+		char *str;
+		complex_stack st;
+		while ((str = *args++) != nullptr) {
+			if (str == "z") {
+				st = st << z;
+			}
+			else if (str == "+" || str == "-" || str == "*" || str == "/") {
+				complex z1(st[1]);
+				complex z2(st[0]);
+				st = ~st;
+				st = ~st;
+				if (str == "+") { st = st << z1 + z2; }
+				if (str == "-") { st = st << z1 - z2; }
+				if (str == "*") { st = st << z1 * z2; }
+				if (str == "/") { st = st << z1 / z2; }
+			}
+			else if (str == "!") {
+				complex z1 = +st;
+				st = st << z1;
+			}
+			else if (str == ";") {
+				st = ~st;
+			}
+			else if (str == "~" || str == "#") {
+				complex z1 = +st;
+				st = ~st;
+				if (str == "~") { st = st << complex(z1.re(), -z1.im()); }
+				if (str == "#") { st = st << complex(-z1.re(), -z1.im()); }
+			}
+			else {
+				complex z1(str);
+				st = st << z1;
+			}
+		}
+		return +st;
+	}
+}
+
+int main() {
+	numbers::complex_stack st, st1;
+	st = st << numbers::complex(1, 2);
+	numbers::complex_stack *ptr = &st;
+	st = st << numbers::complex(4, 5);
+	std::cout << (+(*ptr)).re() << ' ' << (+(*ptr)).im() << std::endl;
+	std::cout << (+st).re() << ' ' << (+st).im() << std::endl;
+	std::cout << st[0].re() << ' ' << st[0].im() << std::endl;
+	std::cout << st[1].re() << ' ' << st[1].im() << std::endl;
+  return 0;
+}
