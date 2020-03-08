@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -242,5 +240,5 @@ int main() {
 	std::cout << (+st).re() << ' ' << (+st).im() << std::endl;
 	std::cout << st[0].re() << ' ' << st[0].im() << std::endl;
 	std::cout << st[1].re() << ' ' << st[1].im() << std::endl;
-  return 0;
+	return 0;
 }
