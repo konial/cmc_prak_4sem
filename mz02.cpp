@@ -1,5 +1,3 @@
-﻿#include "stdafx.h"
-
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -168,7 +166,8 @@ namespace numbers
 	complex_stack complex_stack::operator<<(const complex val) const
 	{
 		complex_stack new_st(*this);
-		if (new_st.val_count + 1 > new_st.st_size) {
+		if (new_st.val_count + 1 > new_st.st_size)
+		{
 			new_st.st_size *= 2;
 			delete[] new_st.top;
 			new_st.top = new complex[new_st.st_size];
@@ -203,13 +202,13 @@ namespace numbers
 		complex_stack st;
 		std::string str;
 
-		auto lambda_pushVal = [&st, &str]() mutable
+		auto lambda_pushVal = [&st, &str]()
 		{
 			complex z1(str);
 			st = st << z1;
 		};
-		auto lambda_pushZ = [&st, z]() mutable { st = st << z; };
-		auto lambda_plus = [&st]() mutable
+		auto lambda_pushZ = [&st, z]() { st = st << z; };
+		auto lambda_plus = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
@@ -217,7 +216,7 @@ namespace numbers
 			st = ~st;
 			st = st << z2 + z1;
 		};
-		auto lambda_minus = [&st]() mutable
+		auto lambda_minus = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
@@ -225,7 +224,7 @@ namespace numbers
 			st = ~st;
 			st = st << z2 - z1;
 		};
-		auto lambda_mul = [&st]() mutable
+		auto lambda_mul = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
@@ -233,7 +232,7 @@ namespace numbers
 			st = ~st;
 			st = st << z2 * z1;
 		};
-		auto lambda_div = [&st]() mutable
+		auto lambda_div = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
@@ -241,19 +240,19 @@ namespace numbers
 			st = ~st;
 			st = st << z2 / z1;
 		};
-		auto lambda_pushLast = [&st]() mutable
+		auto lambda_pushLast = [&st]()
 		{
 			complex z1 = +st;
 			st = st << z1;
 		};
-		auto lambda_pop = [&st]() mutable { st = ~st; };
-		auto lambda_pushLastInv = [&st]() mutable
+		auto lambda_pop = [&st]() { st = ~st; };
+		auto lambda_pushLastInv = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
 			st = st << ~z1;
 		};
-		auto lambda_pushLastNeg = [&st]() mutable
+		auto lambda_pushLastNeg = [&st]()
 		{
 			complex z1 = +st;
 			st = ~st;
