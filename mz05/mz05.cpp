@@ -66,7 +66,7 @@ public:
         stin >> crcl->r;
         return crcl;
     }
-    double get_square() const { return 3.14 * r * r; }
+    double get_square() const { return M_PI * r * r; }
     std::string to_string() const {
         std::string str;
         std::ostringstream stout;
