@@ -4,13 +4,12 @@
 #include <map>
 #include <algorithm>
 
-class DFSA {
-    std::vector<char> alphabet;
+class DFA {
     std::string start_state;
     std::vector<std::string> final_states;
     std::map<std::pair<std::string, char>, std::string> rules;
 public:
-    DFSA() {
+    DFA() {
         std::string cur_st;
         char c;
         std::string new_st;
@@ -29,7 +28,7 @@ public:
     void analyze(std::string);
 };
 
-void DFSA::analyze(std::string str)
+void DFA::analyze(std::string str)
 {
     std::string cur_st = start_state;
     bool appropriate = true;
@@ -56,7 +55,7 @@ void DFSA::analyze(std::string str)
 }
 
 int main() {
-    DFSA automat;
+    DFA automat;
 
     std::string word;
     std::cin >> word;
